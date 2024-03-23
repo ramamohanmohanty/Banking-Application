@@ -11,9 +11,8 @@ import org.jt.BankingManagementSystem.dto.AccountResponseDTO;
 import org.jt.BankingManagementSystem.dto.AccountUpdateDTO;
 import org.springframework.beans.BeanUtils;
 
-//@NoArgsConstructor
+@NoArgsConstructor
 public class AccountMapper {
-    private AccountMapper() {}
     public static Account modelMapper(AccountAddressDTO accountAddressDTO) {
         var credential = new Credential();
         BeanUtils.copyProperties(accountAddressDTO, credential);
