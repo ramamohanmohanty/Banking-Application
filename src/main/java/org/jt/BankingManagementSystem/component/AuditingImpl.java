@@ -10,6 +10,6 @@ public class AuditingImpl implements AuditorAware<String> {
 
     @Override
     public Optional<String> getCurrentAuditor() {
-        return Optional.of("Ram");
+        return Optional.of("ADMIN_RAM");
     }
 }

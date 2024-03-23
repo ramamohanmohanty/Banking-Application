@@ -1,0 +1,23 @@
+server:
+  port: 1200
+  servlet:
+    context-path: "/banking" #context patha always start with "/".
+                            # we declare this because we know the application by local host during microservices.
+spring:
+  datasource:
+    url: "jdbc:mysql://localhost:3306/banking"
+    username: "root"
+    password: "root"
+  sql:
+    init:
+      mode: ALWAYS
+  jpa:
+    properties:
+      hibernate.format_sql: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+upload:
+  file:
+    name: "profile-pictures/"

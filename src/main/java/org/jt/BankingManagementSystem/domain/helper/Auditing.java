@@ -1,12 +1,8 @@
 package org.jt.BankingManagementSystem.domain.helper;
 
-import jakarta.persistence.Embeddable;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.context.event.EventListener;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -21,14 +17,14 @@ import java.time.LocalDateTime;
 //@Embeddable
 public class Auditing {
 
-//    @CreationTimestamp
-    @CreatedDate  //This is a jpa annotation
-    private LocalDateTime createdDateTime;
-    //    @UpdateTimestamp
+    //    @CreationTimestamp
+    @CreatedDate
+    private LocalDateTime createdTime;
     @CreatedBy
     private String createdBy;
+    //    @UpdateTimestamp
     @LastModifiedDate
-    private LocalDateTime updatedDateTime;
+    private LocalDateTime updatedTime;
     @LastModifiedBy
     private String updatedBy;
 }
