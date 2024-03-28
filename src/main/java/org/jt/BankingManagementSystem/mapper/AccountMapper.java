@@ -1,7 +1,6 @@
 package org.jt.BankingManagementSystem.mapper;
 
 import lombok.NoArgsConstructor;
-import org.jt.BankingManagementSystem.constant.AccountType;
 import org.jt.BankingManagementSystem.domain.Account;
 import org.jt.BankingManagementSystem.domain.Address;
 import org.jt.BankingManagementSystem.domain.Credential;
@@ -76,8 +75,8 @@ public class AccountMapper {
                 account.getAccountNumber(),
                 account.getAccountHolderName(),
                 account.getAboutCustomer(),
-                credential.getAccountEmail(),
                 account.getAccountPhone(),
+                credential.getAccountEmail(),
                 account.getAccountBalance(),
                 account.getAccountType(),
                 address.getCity(),

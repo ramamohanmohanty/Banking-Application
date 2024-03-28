@@ -4,13 +4,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.jt.BankingManagementSystem.domain.Account;
 import org.jt.BankingManagementSystem.domain.Credential;
-import org.jt.BankingManagementSystem.dto.AccountAddressDTO;
-import org.jt.BankingManagementSystem.dto.AccountRequestDTO;
-import org.jt.BankingManagementSystem.dto.AccountResponseDTO;
-import org.jt.BankingManagementSystem.dto.AccountUpdateDTO;
+import org.jt.BankingManagementSystem.dto.*;
 import org.jt.BankingManagementSystem.mapper.AccountMapper;
 import org.jt.BankingManagementSystem.service.IAccountService;
+import org.jt.BankingManagementSystem.service.IJWTService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,11 +18,13 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/v1/account")
+@RequestMapping("/api/v1/accounts")
 public class AccountController {
     private final IAccountService accountService;
+    private final IJWTService jwtService;
 
-    @PostMapping("/saveAddress")
+    @PostMapping("/register")
+//    @PostMapping("/saveAddress")
     @ResponseStatus(HttpStatus.CREATED)
     public AccountResponseDTO createAccount(@Valid @RequestBody AccountRequestDTO accountRequestDTO){
         Account account = AccountMapper.modelMapper(accountRequestDTO);
@@ -31,7 +32,7 @@ public class AccountController {
         return AccountMapper.dtoMapper(result);
     }
 
-    @PostMapping("saveAccount")
+    @PostMapping("/saveAccount")
     @ResponseStatus(HttpStatus.CREATED)
     public AccountResponseDTO insertAccount(@Valid @RequestBody AccountAddressDTO accountAddressDTO) {
         Account account = AccountMapper.modelMapper(accountAddressDTO);
@@ -40,15 +41,21 @@ public class AccountController {
     }
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
-    public AccountResponseDTO retriveByEmailAndPassword(@RequestBody Credential credential){
+    public TokenDTO accountByEmailAndPassword(@RequestBody Credential credential){
         Account account = accountService.findByEmailAndPassword(credential.getAccountEmail(), credential.getAccountPassword());
-        return AccountMapper.dtoMapper(account);
+        var token = jwtService.generateToken(String.valueOf(account.getAccountNumber()));
+//        return AccountMapper.dtoMapper(account);
+        return new TokenDTO(token);
     }
+//    public AccountResponseDTO accountByEmailAndPassword(@RequestBody Credential credential){
+//        Account account = accountService.findByEmailAndPassword(credential.getAccountEmail(), credential.getAccountPassword());
+//        return AccountMapper.dtoMapper(account);
+//    }
 
     @PostMapping("/image")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public AccountResponseDTO uploadPicture(@RequestHeader long accountNumber, @RequestParam("file")MultipartFile file) throws Exception {
-        if (file.isEmpty())
+    public AccountResponseDTO uploadPicture(/*@RequestHeader*/ @RequestAttribute long accountNumber, @RequestParam("file")MultipartFile file) throws Exception {
+        if(file.isEmpty())
             throw new RuntimeException("Image not Found");
 
         var result = accountService.uploadProfilePicture(accountNumber, file);
@@ -63,6 +70,8 @@ public class AccountController {
         var result = accountService.updateAccount(accountNumber,account);
         return AccountMapper.dtoMapper(result);
     }
+
+    @GetMapping(value = "/{accountNumber}/image", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE})
     public byte[] getImage(@PathVariable long accountNumber) throws Exception{
         return accountService.getProfilePicture(accountNumber);
     }
@@ -89,13 +98,13 @@ public class AccountController {
 //    public Optional<Account> getAccountNumber(@PathVariable Long accountNumber){
 //       return accountService.getAccount(accountNumber);
 //    }
-    @GetMapping("number/{accountNumber}")
-    public AccountResponseDTO accountByNumber(@PathVariable Long accountNumber){
+    @GetMapping("/number/{accountNumber}")
+    public AccountResponseDTO accountByNumber(@PathVariable long accountNumber){
         var result = accountService.findAccountNumber(accountNumber);
         return AccountMapper.dtoMapper(result);
     }
     @GetMapping("/current")
-    public AccountResponseDTO currentAccountByNumber(@PathVariable long accountNumber){
+    public AccountResponseDTO currentAccountByNumber(/*@PathVariable*/ @RequestAttribute long accountNumber){
         var result = accountService.findAccountNumber(accountNumber);
         return AccountMapper.dtoMapper(result);
     }
@@ -108,23 +117,23 @@ public class AccountController {
 
     @PatchMapping("/deposit/{balance}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deposit(@RequestHeader long accountNumber, @PathVariable("balance") double accountBalance) {
+    public void deposit(/*@RequestHeader*/@RequestAttribute long accountNumber, @PathVariable("balance") double accountBalance) {
         accountService.depositBalance(accountNumber, accountBalance);
     }
 
     @PatchMapping("/withdraw/{amount}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void withdrawMoney(@RequestHeader long accountNumber, @PathVariable("amount") double accountBalance) {
+    public void withdrawMoney(/*@RequestHeader*/ @RequestAttribute long accountNumber, @PathVariable("amount") double accountBalance) {
         accountService.withdrawBalance(accountNumber, accountBalance);
     }
 
     @PatchMapping("/transfer/{receiver}/balance/{balance}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void transferByAccount(@RequestHeader long sender, @PathVariable long receiver, @PathVariable double balance) {
+    public void transferByAccount(/*@RequestHeader*/ @RequestAttribute long sender, @PathVariable long receiver, @PathVariable double balance) {
         accountService.transferBalance(sender, receiver, balance);
     }
 
-    @DeleteMapping("/number/{accountNumber}")
+    @DeleteMapping("/delete/{accountNumber}")
     public AccountResponseDTO deleteAccount(@PathVariable long accountNumber){
         var result = accountService.deleteByAccountNumber(accountNumber);
         return AccountMapper.dtoMapper(result);
